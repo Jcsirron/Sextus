@@ -1,6 +1,10 @@
 from pygame import Rect
 from pygame import Surface
 from pygame import sprite
+from pygame import font
+from GLOBALS import *
+
+font = font.Font('data/savate-regular.ttf', 16)
 
 
 class Button(sprite):
