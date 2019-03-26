@@ -1,15 +1,10 @@
-from pygame import Rect
-from pygame import Surface
-from pygame import sprite
-from pygame import font
+import pygame
 from GLOBALS import *
 
-font = font.Font('data/savate-regular.ttf', 16)
 
-
-class Button(sprite):
+class Button(object):
     def __init__(self):
-        self.rect = Rect(0, 0, 1, 1)
+        self.rect = pygame.Rect(0, 0, 1, 1)
         self.surface = None
 
     def get_rect(self):
@@ -31,11 +26,26 @@ class Menu(object):
         pass
 
 
-class ContextButton(sprite):
-    def __init__(self):
-        self.rect = Rect(0, 0, 1, 1)
-        self.context_rect = Rect(0, 0, 1, 1)
-        self.surface = None
+class ContextButton(object):
+    global EVENT_QUEUE
+
+    def __init__(self, position):
+        context_font = pygame.font.Font('data/savate-regular.otf', 12)
+        self.surface = context_font.render("TEST BUTTON", False, WHITE)
+        self.rect = self.surface.get_rect()
+        self.rect.center = position
+        self.active = True
+
+    def update(self):
+        for event in EVENT_QUEUE:
+            if event[0] == "CLICK":
+                if self.rect.collidepoint(event[1]):
+                    pass
+                else:
+                    self.active = False
+
+    def click(self):
+        pass
 
     def get_rect(self):
         return self.rect

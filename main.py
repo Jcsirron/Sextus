@@ -2,7 +2,6 @@ import pygame
 import sys
 import os
 import party
-import copy
 from GLOBALS import *
 from pygame.locals import *
 
@@ -17,6 +16,9 @@ pygame.init()
 # Initialize the sound module
 pygame.mixer.init()
 
+
+import menus
+
 # Name the window screen
 pygame.display.set_caption(GAME_CAPTION)
 # Initialize the clock to limit the frames per second
@@ -30,10 +32,13 @@ def main_menu():
 
 
 def game():
+    global EVENT_QUEUE
     # Create background
     background = pygame.Surface(SCREEN_SIZE)
     background.fill(GREY)
     font = pygame.font.Font('data/savate-regular.otf', 12)
+
+    test_buttons = []
 
     test_text = font.render("USE THIS TEXT", False, WHITE)
     test_char = party.Character(image="Character.png")
@@ -50,16 +55,27 @@ def game():
     test_party.add_character(test_char3)
     test_party.add_character(test_char4)
     test_party.add_character(test_char5)
-    test_party.update(location=test_party.center)
 
     while True:
+
+        for event in EVENT_QUEUE:
+            if event[0] == "MENU":
+                test_buttons.append(menus.ContextButton(event[1]))
+
+        EVENT_QUEUE.clear()
+
         for event in pygame.event.get():
             if event.type is QUIT:
                 pygame.quit()
                 sys.exit()
             elif event.type is MOUSEBUTTONUP:
-                mouse_position = pygame.mouse.get_pos()
-                test_party.update(location=mouse_position)
+                available = True
+                for button in test_buttons:
+                    if button.rect.collidepoint(pygame.mouse.get_pos()):
+                        button.click()
+                        available = False
+                if available:
+                    EVENT_QUEUE.append(("CLICK", pygame.mouse.get_pos()))
             elif event.type is KEYUP:
                 pass
             elif event.type is KEYDOWN:
@@ -69,10 +85,18 @@ def game():
 
         SCREEN.blit(background, (0, 0))
         # TODO: put the graphics update here:
-        SCREEN.blit(test_text, (SCREEN_CENTER[0]-(test_text.get_width()/2),SCREEN_CENTER[1]-(test_text.get_height()/2)))
+
+        for i in test_party.characters:
+            pygame.draw.rect(SCREEN, WHITE, i.location)
+
         drawlist = test_party.draw_party()
         for i in drawlist:
             SCREEN.blit(i[0], i[1])
+
+        for button in test_buttons:
+            button.update()
+            if button.active:
+                SCREEN.blit(button.get_surface(), button.get_rect())
 
         # update the screen and limit the FPS to game speed
         pygame.display.update()
